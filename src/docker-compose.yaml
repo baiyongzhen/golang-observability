@@ -1,0 +1,147 @@
+version: '3.9'
+
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+# https://grafana.com/docs/loki/latest/clients/docker-driver/configuration/
+x-logging: &default-logging
+  driver: loki
+  options:
+    loki-url: 'http://localhost:3100/api/prom/push'
+
+services:
+  app-a:
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: app-a
+    environment:
+      - APP_NAME=app-a
+      - TARGET_ONE_HOST=http://app-b:8080/io_task
+      - TARGET_TWO_HOST=http://app-c:8080/cpu_task
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otelcol:4317
+      - OTEL_METRICS_EXEMPLAR_FILTER=TRACE_BASED      
+    depends_on:
+      - loki
+      - otelcol
+    ports:
+      - "8080:8080"
+    logging: *default-logging
+
+  app-b:
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: app-b
+    environment:
+      - APP_NAME=app-b
+      - TARGET_ONE_HOST=http://app-a:8080/io_task
+      - TARGET_TWO_HOST=http://app-c:8080/cpu_task
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otelcol:4317
+      - OTEL_METRICS_EXEMPLAR_FILTER=TRACE_BASED     
+    depends_on:
+      - loki
+      - otelcol      
+    ports:
+      - "8081:8080"
+    logging: *default-logging
+
+  app-c:
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: app-c
+    environment:
+      - APP_NAME=app-c
+      - TARGET_ONE_HOST=http://app-a:8080/io_task
+      - TARGET_TWO_HOST=http://app-b:8080/cpu_task
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otelcol:4317
+      - OTEL_METRICS_EXEMPLAR_FILTER=TRACE_BASED    
+    depends_on:
+      - loki
+      - otelcol      
+    ports:
+      - "8082:8080"
+    logging: *default-logging
+
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.67.0 # 0.79.0
+    container_name: otel-col
+    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-config-extras.yml"]
+    volumes:
+      - ./config/otelcol/otelcol-config.yml:/etc/otelcol-config.yml
+      - ./config/otelcol/otelcol-config-extras.yml:/etc/otelcol-config-extras.yml          
+    links:
+      - prometheus
+      - tempo
+      - loki    
+    ports:
+      - "4317:4317"     # OTLP over gRPC receiver
+      - "4318:4318"     # OTLP over HTTP receiver
+#      - "9464:9464"     # Prometheus exporter
+      - "8888:8888"     # metrics endpoint
+      - '8006:8006'     # Fluentd forward receiver
+      - '8006:8006/udp' # Fluentd forward receiver
+      - '3500:3500'     # Loki HTTP receiver
+      - '3600:3600'     # Loki gRPC receiver
+    logging: *logging
+
+  prometheus:
+    #image: quay.io/prometheus/prometheus:v2.34.0
+    image: prom/prometheus:v2.43.0
+    container_name: prometheus
+    command:
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --storage.tsdb.retention.time=1h
+      - --config.file=/etc/prometheus/prometheus-config.yaml
+      - --enable-feature=exemplar-storage # exemplar
+      #- --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --web.route-prefix=/
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ./config/prometheus/prometheus.yaml:/etc/prometheus/prometheus-config.yaml      
+    ports:
+      - "9090:9090"
+    depends_on:
+      - loki      
+    logging: *logging
+
+  tempo:
+    image: grafana/tempo:2.0.1
+    command: [ "--target=all", "--storage.trace.backend=local", "--storage.trace.local.path=/var/tempo", "--auth.enabled=false" ]
+    ports:
+      - "14317:4317"  # Tempo gRPC receiver
+      - "14250:14250"
+    depends_on:
+      - loki
+    logging: *logging
+
+  loki:
+    image: grafana/loki:2.8.0
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    logging: *logging
+
+  grafana:
+    image: grafana/grafana:9.4.7
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./config/grafana/provisioning/dashboards/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./config/grafana/dashboards:/etc/grafana/dashboards
+    depends_on:
+      - loki
+      - prometheus
+      - tempo
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    logging: *logging

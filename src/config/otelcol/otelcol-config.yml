@@ -1,0 +1,67 @@
+receivers:
+  otlp:
+    protocols:
+      grpc: # on port 4317
+      http: # on port 4318
+
+  prometheus:
+      config:
+        scrape_configs:
+          - job_name: "app-a"
+            scrape_interval: 5s
+            static_configs:
+              - targets:
+                - "app-a:8080"
+          - job_name: "app-b"
+            scrape_interval: 5s
+            static_configs:
+              - targets:
+                - "app-b:8080"
+          - job_name: "app-c"
+            scrape_interval: 5s
+            static_configs:
+              - targets:
+                - "app-c:8080" 
+
+  fluentforward:
+    endpoint: 0.0.0.0:8006
+
+processors:
+  batch:
+
+exporters:
+  logging:
+    loglevel: debug
+  # metrics
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+  # traces
+  otlp/tempo:
+    endpoint: http://tempo:4317
+    tls:
+      insecure: true
+      insecure_skip_verify: true  
+  # logs
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+
+extensions:
+  health_check:
+  pprof:
+  zpages:
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [batch]
+      exporters: [prometheusremotewrite]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki]

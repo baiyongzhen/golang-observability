@@ -1,3 +1,7 @@
+# Created by https://www.toptal.com/developers/gitignore/api/go,vagrant
+# Edit at https://www.toptal.com/developers/gitignore?templates=go,vagrant
+
+### Go ###
 # If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
@@ -19,3 +23,15 @@
 
 # Go workspace file
 go.work
+
+### Vagrant ###
+# General
+.vagrant/
+
+# Log files (if you are creating logs in debug mode, uncomment this)
+# *.log
+
+### Vagrant Patch ###
+*.box
+
+# End of https://www.toptal.com/developers/gitignore/api/go,vagrant

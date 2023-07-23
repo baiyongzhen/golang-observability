@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Opentelemetry metrics test
+#scrape_configs:
+#  - job_name: 'app-a'
+#    # Override the global default and scrape targets from this job every 5 seconds.
+#    scrape_interval: 5s
+#    metrics_path: "/actuator/prometheus"
+#    static_configs:
+#      #- targets: ['app:8080']
+#      - targets: ['app:8081']
