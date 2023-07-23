@@ -884,7 +884,7 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 21
       },
@@ -925,8 +925,8 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 18,
-        "x": 6,
+        "w": 8,
+        "x": 4,
         "y": 21
       },
       "id": 2,
@@ -956,9 +956,76 @@
       ],
       "title": "Log of All FastAPI App",
       "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "id": 23,
+      "options": {
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "key": "Q-bd7a6b0b-8f7e-403c-96dc-3c18198a836a-0",
+          "limit": 20,
+          "query": "{.service.name=~\"app-.*\"}",
+          "queryType": "traceql",
+          "refId": "A",
+          "serviceName": "app-a"
+        }
+      ],
+      "title": "Span",
+      "type": "table"
     }
   ],
-  "refresh": "5s",
+  "refresh": false,
   "revision": 1,
   "schemaVersion": 38,
   "style": "dark",
@@ -1016,8 +1083,8 @@
     ]
   },
   "time": {
-    "from": "now-5m",
-    "to": "now"
+    "from": "2023-07-23T04:59:24.409Z",
+    "to": "2023-07-23T05:01:17.765Z"
   },
   "timepicker": {},
   "timezone": "",
