@@ -4,7 +4,6 @@ package monitoring
 import (
 	"fmt"
 	"net/http"
-	_ "os"
 	"strconv"
 	"sync"
 	"time"
@@ -269,7 +268,6 @@ func (tw traceware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sCtx := span.SpanContext()
 	traceID := sCtx.TraceID().String()
 	spanId := sCtx.SpanID().String()
-	//fmt.Printf("PrometheusMiddleware traceID: %s spanId: %s  \n", traceID, spanId)
 	REQUESTS_PROCESSING_TIME_EXEMPLAR.(prometheus.ExemplarObserver).ObserveWithExemplar(
 					time.Since(now).Seconds(), prometheus.Labels{
 						"TraceID": traceID,
