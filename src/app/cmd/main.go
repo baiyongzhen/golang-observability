@@ -166,10 +166,10 @@ func main() {
 	srv := &http.Server{
 		Addr:              address,
 		Handler: 		   monitoring.ServeHTTPMiddleware(router),
-		ReadTimeout:       1 * time.Second,
-		ReadHeaderTimeout: 1 * time.Second,
-		WriteTimeout:      1 * time.Second,
-		IdleTimeout:       1 * time.Second,
+		ReadTimeout:       2 * time.Second,
+		ReadHeaderTimeout: 2 * time.Second,
+		WriteTimeout:      2 * time.Second,
+		IdleTimeout:       2 * time.Second,
 	}
 
 	fmt.Println("Starting server", address)
@@ -177,7 +177,10 @@ func main() {
 }
 
 func httpGet(ctx context.Context, url string, hader http.Header) error {
-	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+	client := http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+		Timeout :  1 * time.Second,
+	}
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	req.Header = hader
 	if err != nil {

@@ -18,6 +18,7 @@ services:
       context: ./app
       dockerfile: Dockerfile
     container_name: app-a
+#    restart: on-failure
     environment:
       - APP_NAME=app-a
       - TARGET_ONE_HOST=http://app-b:8080/io_task
