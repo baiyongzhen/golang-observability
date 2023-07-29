@@ -1025,7 +1025,7 @@
       "type": "table"
     }
   ],
-  "refresh": false,
+  "refresh": "5s",
   "revision": 1,
   "schemaVersion": 38,
   "style": "dark",
@@ -1034,9 +1034,10 @@
     "list": [
       {
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "app-a",
-          "value": "app-a"
+          "text": "None",
+          "value": ""
         },
         "datasource": {
           "type": "prometheus",
@@ -1083,8 +1084,8 @@
     ]
   },
   "time": {
-    "from": "2023-07-23T04:59:24.409Z",
-    "to": "2023-07-23T05:01:17.765Z"
+    "from": "now-5m",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",
