@@ -12,6 +12,8 @@
 
 ***[OpenTelemetry, Grafana, Loki, Tempo, Prometheus를 활용한 Golang Observability 구성하기](https://medium.com/@dudwls96/opentelemetry-grafana-loki-tempo-prometheus%EB%A5%BC-%ED%99%9C%EC%9A%A9%ED%95%9C-golang-observability-%EA%B5%AC%EC%84%B1%ED%95%98%EA%B8%B0-3cf148039c1c)***
 
+***[OpenTelemetry, Grafana, Loki, Tempo, Prometheus를 활용한 SpringBoot Observability 구성하기](https://medium.com/@dudwls96/opentelemetry-grafana-loki-tempo-prometheus%EB%A5%BC-%ED%99%9C%EC%9A%A9%ED%95%9C-spring-boot-observability-%EA%B5%AC%EC%84%B1%ED%95%98%EA%B8%B0-f977df45bb70)***
+
 #### Dashboard screenshot:
 ![Alt text](./images/01.png)
 
